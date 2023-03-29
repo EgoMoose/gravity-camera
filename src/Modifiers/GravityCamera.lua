@@ -2,6 +2,7 @@ local transitionRate: number = 0.15
 
 local upCFrame: CFrame = CFrame.new()
 local upVector: Vector3 = upCFrame.YVector
+local targetUpVector: Vector3 = upVector
 local twistCFrame: CFrame = CFrame.new()
 
 local spinPart: BasePart = workspace.Terrain
@@ -16,7 +17,7 @@ local function getRotationBetween(u: Vector3, v: Vector3, axis: Vector3): CFrame
 	return CFrame.new(0, 0, 0, uxv.x, uxv.y, uxv.z, 1 + dot)
 end
 
-local function calculateUpStep(dt: number, targetUpVector: Vector3)
+local function calculateUpStep(dt: number)
 	local axis = workspace.CurrentCamera.CFrame.RightVector
 
 	local sphericalArc = getRotationBetween(upVector, targetUpVector, axis)
@@ -111,8 +112,16 @@ return function(PlayerModule)
 	local cameraObject = require(PlayerModule.CameraModule)
 	local cameraInput = require(PlayerModule.CameraModule.CameraInput)
 
-	function cameraObject:GetUpVector(prevUpVector: Vector3)
-		return prevUpVector
+	function cameraObject:GetUpVector(): Vector3
+		return upVector
+	end
+
+	function cameraObject:GetTargetUpVector(): Vector3
+		return targetUpVector
+	end
+
+	function cameraObject:SetTargetUpVector(target: Vector3)
+		targetUpVector = target
 	end
 
 	function cameraObject:SetSpinPart(part: BasePart)
@@ -133,7 +142,7 @@ return function(PlayerModule)
 	
 			local newCameraCFrame, newCameraFocus = self.activeCameraController:Update(dt)
 
-			calculateUpStep(dt, self:GetUpVector(upVector))
+			calculateUpStep(dt)
 			calculateSpinStep(dt)
 
 			-- newCameraFocus = newCameraFocus
