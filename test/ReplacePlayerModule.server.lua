@@ -1,0 +1,3 @@
+local GravityPlayerModulePackage = require(game.ReplicatedStorage.GravityPlayerModule)
+
+GravityPlayerModulePackage.replace(GravityPlayerModulePackage.getCopy())
