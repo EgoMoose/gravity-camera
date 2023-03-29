@@ -36,10 +36,12 @@ local function twistAngle(cf: CFrame, direction: Vector3): number
 	return math.sign(v:Dot(direction)) * nTheta
 end
 
-local function calculateSpinStep(_dt: number)
+local function calculateSpinStep(_dt: number, inVehicle: boolean)
 	local theta = 0
-	
-	if spinPart == prevSpinPart then
+
+	if inVehicle then
+		theta = 0
+	elseif spinPart == prevSpinPart then
 		local rotation = spinPart.CFrame - spinPart.CFrame.Position
 		local prevRotation = prevSpinCFrame - prevSpinCFrame.Position
 
@@ -143,9 +145,9 @@ return function(PlayerModule)
 			local newCameraCFrame, newCameraFocus = self.activeCameraController:Update(dt)
 
 			calculateUpStep(dt)
-			calculateSpinStep(dt)
+			calculateSpinStep(dt, self:ShouldUseVehicleCamera())
 
-			-- newCameraFocus = newCameraFocus
+			newCameraFocus = CFrame.new(newCameraFocus.Position) -- fixes an issue with vehicle cameras
 			newCameraCFrame = newCameraFocus * upCFrame * twistCFrame * newCameraFocus:ToObjectSpace(newCameraCFrame)
 	
 			if self.activeOcclusionModule then
