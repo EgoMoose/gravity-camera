@@ -1,0 +1,24 @@
+{
+	"name": "gravity-playermodule",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"GravityPlayerModule": {
+				"$path": "src",
+				"Packages": {
+					"$path": "Packages"
+				}
+			}
+		},
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"PlayerScriptsLoader": {
+					"$path": "src"
+				}
+			}
+		}
+	}
+}
