@@ -126,6 +126,10 @@ return function(PlayerModule)
 		targetUpVector = target
 	end
 
+	function cameraObject:GetSpinPart(): BasePart
+		return spinPart
+	end
+
 	function cameraObject:SetSpinPart(part: BasePart)
 		spinPart = part
 	end
