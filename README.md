@@ -1,5 +1,5 @@
 # gravity-camera
-Modifications to the standard roblox player module to allow custom up vectors and spinning in sync base parts
+Modifications to the standard roblox player module to allow custom up vectors and spinning in sync with base parts.
 
 Adds the following functions to the CameraModule:
 
