@@ -1,6 +1,7 @@
 [package]
 name = "egomoose/gravity-camera"
 version = "569.2.5690484"
+description = "https://github.com/EgoMoose/gravity-camera"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
