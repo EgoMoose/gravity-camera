@@ -1,6 +1,7 @@
 --!strict
 
-local PlayerModulePackage = require(script.Packages.PlayerModule)
+local Packages = script.Parent
+local PlayerModulePackage = require(Packages.PlayerModule)
 
 local module = {}
 local patched = PlayerModulePackage.getCopy(true)
