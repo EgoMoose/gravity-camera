@@ -169,6 +169,10 @@ return function(PlayerModule)
 			local currentCamera = game.Workspace.CurrentCamera :: Camera
 			currentCamera.CFrame = newCameraCFrame
 			currentCamera.Focus = newCameraFocus
+
+			-- fixes issue with follow camera
+			self.activeCameraController.lastCameraTransform = newCameraCFrame
+			self.activeCameraController.lastCameraFocus = newCameraFocus
 	
 			-- Update to character local transparency as needed based on camera-to-subject distance
 			if self.activeTransparencyController then
