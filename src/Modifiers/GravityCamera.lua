@@ -145,14 +145,21 @@ return function(PlayerModule)
 	function cameraObject:Update(dt: number)
 		if self.activeCameraController then
 			self.activeCameraController:UpdateMouseBehavior()
-	
+
 			local newCameraCFrame, newCameraFocus = self.activeCameraController:Update(dt)
+			local lockOffset = self.activeCameraController:GetIsMouseLocked() 
+							and self.activeCameraController:GetMouseLockOffset()
+							or Vector3.new(0, 0, 0)
 
 			calculateUpStep(dt)
 			calculateSpinStep(dt, self:ShouldUseVehicleCamera())
 
-			newCameraFocus = CFrame.new(newCameraFocus.Position) -- fixes an issue with vehicle cameras
-			newCameraCFrame = newCameraFocus * upCFrame * twistCFrame * newCameraFocus:ToObjectSpace(newCameraCFrame)
+			local fixedCameraFocus = CFrame.new(newCameraFocus.Position) -- fixes an issue with vehicle cameras
+			local camRotation = upCFrame * twistCFrame * fixedCameraFocus:ToObjectSpace(newCameraCFrame)
+			local adjustedLockOffset = -newCameraCFrame:VectorToWorldSpace(lockOffset) + camRotation:VectorToWorldSpace(lockOffset)
+			
+			newCameraFocus = fixedCameraFocus + adjustedLockOffset
+			newCameraCFrame = newCameraFocus * camRotation
 	
 			if self.activeOcclusionModule then
 				newCameraCFrame, newCameraFocus = self.activeOcclusionModule:Update(dt, newCameraCFrame, newCameraFocus)
