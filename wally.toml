@@ -1,9 +1,9 @@
 [package]
 name = "egomoose/gravity-camera"
-version = "570.0.57005631"
+version = "573.0.5730507"
 description = "https://github.com/EgoMoose/gravity-camera"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 
 [dependencies]
-PlayerModule = "upliftgames/playermodule@569.2.5690484"
+PlayerModule = "upliftgames/playermodule@573.0.5730507"

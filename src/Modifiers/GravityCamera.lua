@@ -17,11 +17,11 @@ local function getRotationBetween(u: Vector3, v: Vector3, axis: Vector3): CFrame
 	return CFrame.new(0, 0, 0, uxv.x, uxv.y, uxv.z, 1 + dot)
 end
 
-local function calculateUpStep(dt: number)
+local function calculateUpStep(_dt: number)
 	local axis = workspace.CurrentCamera.CFrame.RightVector
 
 	local sphericalArc = getRotationBetween(upVector, targetUpVector, axis)
-	local transitionCF = CFrame.new():Lerp(sphericalArc, transitionRate * math.max(dt * 60, 1))
+	local transitionCF = CFrame.new():Lerp(sphericalArc, transitionRate)
 
 	upVector = transitionCF * upVector
 	upCFrame = transitionCF * upCFrame
