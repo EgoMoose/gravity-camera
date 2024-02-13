@@ -1,6 +1,8 @@
+--!strict
+
 local PlayerModule = script.Parent:WaitForChild("PlayerModule")
 
-local playerModuleObject = require(PlayerModule)
+local playerModuleObject = require(PlayerModule) :: any
 local cameraModuleObject = playerModuleObject:GetCameras()
 
 game:GetService("RunService").Heartbeat:Connect(function(_dt)
@@ -10,7 +12,7 @@ game:GetService("RunService").Heartbeat:Connect(function(_dt)
 	if hrp then
 		local params = RaycastParams.new()
 		params.FilterType = Enum.RaycastFilterType.Exclude
-		params.FilterDescendantsInstances = {character}
+		params.FilterDescendantsInstances = { character }
 
 		local result = workspace:Raycast(hrp.Position, hrp.CFrame.YVector * -10, params)
 

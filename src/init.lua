@@ -4,8 +4,8 @@ local Packages = script.Parent
 local PlayerModulePackage = require(Packages.PlayerModule)
 
 local module = {}
-local patched = PlayerModulePackage.getCopy(true)
-local modifiers = require(patched.Modifiers)
+local patched = PlayerModulePackage.getCopy(true) :: any
+local modifiers = require(patched.Modifiers) :: any
 
 -- Adjustments
 
