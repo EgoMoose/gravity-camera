@@ -1,5 +1,5 @@
 {
-	"name": "TweenPromise",
+	"name": "GravityPlayerModule",
 	"tree": {
 		"$className": "ModuleScript",
 		"$properties": {
