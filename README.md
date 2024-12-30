@@ -3,7 +3,7 @@ Modifications to the standard roblox player module to allow custom up vectors an
 
 Adds the following functions to the CameraModule:
 
-```Lua
+```luau
 -- returns what the camera currently considers to be the up vector at any given moment
 CameraModule:GetUpVector(): Vector3
 
