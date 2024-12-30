@@ -16,14 +16,14 @@
 			"StarterPlayerScripts": {
 				"$className": "StarterPlayerScripts",
 				"PlayerScriptsLoader": {
-					"$path": "test/PlayerScriptsLoader.client.lua"
+					"$path": "test/PlayerScriptsLoader.client.luau"
 				}
 			}
 		},
 		"ServerScriptService": {
 			"$className": "ServerScriptService",
 			"ReplacePlayerModule": {
-				"$path": "test/ReplacePlayerModule.server.lua"
+				"$path": "test/ReplacePlayerModule.server.luau"
 			}
 		}
 	}
