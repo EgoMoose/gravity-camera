@@ -13,47 +13,53 @@ local prevSpinCFrame: CFrame = spinPart.CFrame
 
 --
 
-local function getRotationBetween(u: Vector3, v: Vector3, axis: Vector3): CFrame
-	local dot, uxv = u:Dot(v), u:Cross(v)
+local function fromToRotation(fromUnit: Vector3, toUnit: Vector3, backupAxis: Vector3)
+	local dot, cross = fromUnit:Dot(toUnit), fromUnit:Cross(toUnit)
 	if dot < -0.99999 then
-		return CFrame.fromAxisAngle(axis, math.pi)
+		return CFrame.fromAxisAngle(backupAxis, math.pi)
 	end
-	return CFrame.new(0, 0, 0, uxv.X, uxv.Y, uxv.Z, 1 + dot)
+	return CFrame.new(0, 0, 0, cross.X, cross.Y, cross.Z, 1 + dot)
+end
+
+local function swingTwistDecomposition(inputCF: CFrame, relativeUnitAxis: Vector3)
+	local axis, theta = inputCF:ToAxisAngle()
+	local w, v = math.cos(theta / 2), math.sin(theta / 2) * axis
+
+	local proj = v:Dot(relativeUnitAxis) * relativeUnitAxis
+	local twist = CFrame.new(0, 0, 0, proj.X, proj.Y, proj.Z, w)
+
+	local swing = inputCF * twist:Inverse()
+
+	return swing, twist
 end
 
 local function calculateUpStep(_dt: number)
 	local axis = workspace.CurrentCamera.CFrame.RightVector
 
-	local sphericalArc = getRotationBetween(upVector, targetUpVector, axis)
+	local sphericalArc = fromToRotation(upVector, targetUpVector, axis)
 	local transitionCF = CFrame.new():Lerp(sphericalArc, transitionRate)
 
 	upVector = transitionCF * upVector
 	upCFrame = transitionCF * upCFrame
 end
 
-local function twistAngle(cf: CFrame, direction: Vector3): number
-	local axis, theta = cf:ToAxisAngle()
-	local w, v = math.cos(theta / 2), math.sin(theta / 2) * axis
-	local proj = v:Dot(direction) * direction
-	local twist = CFrame.new(0, 0, 0, proj.X, proj.Y, proj.Z, w)
-	local _nAxis, nTheta = twist:ToAxisAngle()
-	return math.sign(v:Dot(direction)) * nTheta
-end
-
 local function calculateSpinStep(_dt: number, inVehicle: boolean)
-	local theta = 0
-
 	if inVehicle then
-		theta = 0
+		twistCFrame = CFrame.identity
 	elseif spinPart == prevSpinPart then
 		local rotation = spinPart.CFrame - spinPart.CFrame.Position
 		local prevRotation = prevSpinCFrame - prevSpinCFrame.Position
 
-		local spinAxis = rotation:VectorToObjectSpace(upVector)
-		theta = twistAngle(prevRotation:ToObjectSpace(rotation), spinAxis)
-	end
+		local delta = prevRotation:ToObjectSpace(rotation)
+		local spinAxis = delta:VectorToObjectSpace(prevRotation:VectorToObjectSpace(upVector))
 
-	twistCFrame = CFrame.fromEulerAnglesYXZ(0, theta, 0)
+		local _swing, twist = swingTwistDecomposition(delta, spinAxis)
+		local deltaAxis, _deltaTheta = delta:ToAxisAngle()
+		local _twistAxis, twistTheta = twist:ToAxisAngle()
+
+		local theta = math.sign(deltaAxis:Dot(spinAxis)) * twistTheta
+		twistCFrame = CFrame.fromEulerAnglesYXZ(0, theta, 0)
+	end
 
 	prevSpinPart = spinPart
 	prevSpinCFrame = spinPart.CFrame
