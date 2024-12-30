@@ -82,7 +82,12 @@ return function(PlayerModule)
 	local poppercam = require(PlayerModule.CameraModule.Poppercam) :: any
 	local zoomController = require(PlayerModule.CameraModule.ZoomController) :: any
 
-	function poppercam:Update(renderDt: number, desiredCameraCFrame: CFrame, desiredCameraFocus: CFrame, _cameraController: any)
+	function poppercam:Update(
+		renderDt: number,
+		desiredCameraCFrame: CFrame,
+		desiredCameraFocus: CFrame,
+		_cameraController: any
+	)
 		local rotatedFocus = desiredCameraFocus * (desiredCameraCFrame - desiredCameraCFrame.Position)
 		local extrapolation = self.focusExtrapolator:Step(renderDt, rotatedFocus)
 		local zoom = zoomController.Update(renderDt, rotatedFocus, extrapolation)
@@ -103,7 +108,9 @@ return function(PlayerModule)
 		local yTheta = math.clamp(rotateInput.Y, -max_y + currPitchAngle, -min_y + currPitchAngle)
 		local constrainedRotateInput = Vector2.new(rotateInput.X, yTheta)
 		local startCFrame = CFrame.new(Vector3.zero, currLookVector)
-		local newLookCFrame = CFrame.Angles(0, -constrainedRotateInput.X, 0) * startCFrame * CFrame.Angles(-constrainedRotateInput.Y, 0, 0)
+		local newLookCFrame = CFrame.Angles(0, -constrainedRotateInput.X, 0)
+			* startCFrame
+			* CFrame.Angles(-constrainedRotateInput.Y, 0, 0)
 
 		return newLookCFrame
 	end
@@ -154,14 +161,17 @@ return function(PlayerModule)
 			self.activeCameraController:UpdateMouseBehavior()
 
 			local newCameraCFrame, newCameraFocus = self.activeCameraController:Update(dt)
-			local lockOffset = self.activeCameraController:GetIsMouseLocked() and self.activeCameraController:GetMouseLockOffset() or Vector3.new(0, 0, 0)
+			local lockOffset = self.activeCameraController:GetIsMouseLocked()
+					and self.activeCameraController:GetMouseLockOffset()
+				or Vector3.new(0, 0, 0)
 
 			calculateUpStep(dt)
 			calculateSpinStep(dt, self:ShouldUseVehicleCamera())
 
 			local fixedCameraFocus = CFrame.new(newCameraFocus.Position) -- fixes an issue with vehicle cameras
 			local camRotation = upCFrame * twistCFrame * fixedCameraFocus:ToObjectSpace(newCameraCFrame)
-			local adjustedLockOffset = -newCameraCFrame:VectorToWorldSpace(lockOffset) + camRotation:VectorToWorldSpace(lockOffset)
+			local adjustedLockOffset = -newCameraCFrame:VectorToWorldSpace(lockOffset)
+				+ camRotation:VectorToWorldSpace(lockOffset)
 
 			newCameraFocus = fixedCameraFocus + adjustedLockOffset
 			newCameraCFrame = newCameraFocus * camRotation
