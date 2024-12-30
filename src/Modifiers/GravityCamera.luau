@@ -132,13 +132,13 @@ return function(PlayerModule)
 		return upVector
 	end
 
-	function cameraObject:GetUpOrientation(): (Vector3, CFrame)
-		return upVector, upCFrame
+	function cameraObject:GetUpCFrame(): CFrame
+		return upCFrame
 	end
 
-	function cameraObject:SetUpOrientation(newUpVector: Vector3, newUpCFrame: CFrame)
-		upVector = newUpVector
-		upCFrame = newUpCFrame
+	function cameraObject:SetUpCFrame(cframe: CFrame)
+		upCFrame = cframe
+		upVector = cframe.YVector
 	end
 
 	function cameraObject:GetTargetUpVector(): Vector3

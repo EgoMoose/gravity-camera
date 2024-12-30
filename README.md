@@ -7,11 +7,11 @@ Adds the following functions to the CameraModule:
 -- returns what the camera currently considers to be the up vector at any given moment
 CameraModule:GetUpVector(): Vector3
 
--- returns what the camera currently considers to be the up vector and cframe at any given moment
-CameraModule:GetUpOrientation(): (Vector3, CFrame)
+-- returns what the camera currently considers to be the up cframe at any given moment
+CameraModule:GetUpCFrame(): CFrame
 
--- sets the up vector and cframe
-CameraModule:SetUpOrientation(upVector: Vector3, upCFrame: CFrame)
+-- sets the up cframe
+CameraModule:SetUpCFrame(upCFrame: CFrame)
 
 -- by default this is Vector3.new(0, 1, 0)
 CameraModule:GetTargetUpVector(): Vector3
