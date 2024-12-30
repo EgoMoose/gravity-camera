@@ -1,6 +1,5 @@
 {
 	"luau-lsp.require.mode": "relativeToFile",
-
 	"[lua]": {
 		"editor.formatOnSave": true,
 		"editor.defaultFormatter": "JohnnyMorganz.stylua"
@@ -9,7 +8,9 @@
 		"editor.formatOnSave": true,
 		"editor.defaultFormatter": "JohnnyMorganz.stylua"
 	},
-
 	"luau-lsp.sourcemap.rojoProjectFile": "develop.project.json",
-	"stylua.targetReleaseVersion": "latest"
+	"stylua.targetReleaseVersion": "latest",
+	"luau-lsp.require.directoryAliases": {
+		"@lune/": "~/.lune/.typedefs/0.8.9/"
+	}
 }

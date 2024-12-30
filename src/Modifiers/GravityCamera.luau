@@ -1,3 +1,5 @@
+--!strict
+
 local transitionRate: number = 0.15
 
 local upCFrame: CFrame = CFrame.new()
@@ -16,7 +18,7 @@ local function getRotationBetween(u: Vector3, v: Vector3, axis: Vector3): CFrame
 	if dot < -0.99999 then
 		return CFrame.fromAxisAngle(axis, math.pi)
 	end
-	return CFrame.new(0, 0, 0, uxv.x, uxv.y, uxv.z, 1 + dot)
+	return CFrame.new(0, 0, 0, uxv.X, uxv.Y, uxv.Z, 1 + dot)
 end
 
 local function calculateUpStep(_dt: number)
@@ -33,7 +35,7 @@ local function twistAngle(cf: CFrame, direction: Vector3): number
 	local axis, theta = cf:ToAxisAngle()
 	local w, v = math.cos(theta / 2), math.sin(theta / 2) * axis
 	local proj = v:Dot(direction) * direction
-	local twist = CFrame.new(0, 0, 0, proj.x, proj.y, proj.z, w)
+	local twist = CFrame.new(0, 0, 0, proj.X, proj.Y, proj.Z, w)
 	local _nAxis, nTheta = twist:ToAxisAngle()
 	return math.sign(v:Dot(direction)) * nTheta
 end
@@ -61,7 +63,7 @@ end
 
 return function(PlayerModule)
 	------------
-	local cameraUtils = require(PlayerModule.CameraModule.CameraUtils)
+	local cameraUtils = require(PlayerModule.CameraModule.CameraUtils) :: any
 
 	function cameraUtils.getAngleBetweenXZVectors(v1: Vector3, v2: Vector3): number
 		v1 = upCFrame:VectorToObjectSpace(v1)
@@ -71,8 +73,8 @@ return function(PlayerModule)
 	end
 
 	------------
-	local poppercam = require(PlayerModule.CameraModule.Poppercam)
-	local zoomController = require(PlayerModule.CameraModule.ZoomController)
+	local poppercam = require(PlayerModule.CameraModule.Poppercam) :: any
+	local zoomController = require(PlayerModule.CameraModule.ZoomController) :: any
 
 	function poppercam:Update(renderDt: number, desiredCameraCFrame: CFrame, desiredCameraFocus: CFrame, _cameraController: any)
 		local rotatedFocus = desiredCameraFocus * (desiredCameraCFrame - desiredCameraCFrame.Position)
@@ -82,7 +84,7 @@ return function(PlayerModule)
 	end
 
 	------------
-	local baseCamera = require(PlayerModule.CameraModule.BaseCamera)
+	local baseCamera = require(PlayerModule.CameraModule.BaseCamera) :: any
 
 	local max_y = math.rad(80)
 	local min_y = math.rad(-80)
@@ -101,7 +103,7 @@ return function(PlayerModule)
 	end
 
 	------------
-	local vehicleCameraCore = require(PlayerModule.CameraModule.VehicleCamera.VehicleCameraCore)
+	local vehicleCameraCore = require(PlayerModule.CameraModule.VehicleCamera.VehicleCameraCore) :: any
 	local setTransform = vehicleCameraCore.setTransform
 
 	function vehicleCameraCore:setTransform(transform: CFrame)
@@ -110,8 +112,8 @@ return function(PlayerModule)
 	end
 
 	------------
-	local cameraObject = require(PlayerModule.CameraModule)
-	local cameraInput = require(PlayerModule.CameraModule.CameraInput)
+	local cameraObject = require(PlayerModule.CameraModule) :: any
+	local cameraInput = require(PlayerModule.CameraModule.CameraInput) :: any
 
 	function cameraObject:GetUpVector(): Vector3
 		return upVector
