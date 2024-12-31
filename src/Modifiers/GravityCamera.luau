@@ -1,12 +1,10 @@
 --!strict
 
 local transitionRate: number = 0.15
+local upCFrame: CFrame = CFrame.identity
+local targetUpVector: Vector3 = upCFrame.YVector
 
-local upCFrame: CFrame = CFrame.new()
-local upVector: Vector3 = upCFrame.YVector
-local targetUpVector: Vector3 = upVector
-local twistCFrame: CFrame = CFrame.new()
-
+local twistCFrame: CFrame = CFrame.identity
 local spinPart: BasePart = workspace.Terrain
 local prevSpinPart: BasePart = spinPart
 local prevSpinCFrame: CFrame = spinPart.CFrame
@@ -36,10 +34,9 @@ end
 local function calculateUpStep(_dt: number)
 	local axis = workspace.CurrentCamera.CFrame.RightVector
 
-	local sphericalArc = fromToRotation(upVector, targetUpVector, axis)
-	local transitionCF = CFrame.new():Lerp(sphericalArc, transitionRate)
+	local sphericalArc = fromToRotation(upCFrame.YVector, targetUpVector, axis)
+	local transitionCF = CFrame.identity:Lerp(sphericalArc, transitionRate)
 
-	upVector = transitionCF * upVector
 	upCFrame = transitionCF * upCFrame
 end
 
@@ -51,7 +48,7 @@ local function calculateSpinStep(_dt: number, inVehicle: boolean)
 		local prevRotation = prevSpinCFrame - prevSpinCFrame.Position
 
 		local delta = prevRotation:ToObjectSpace(rotation)
-		local spinAxis = delta:VectorToObjectSpace(prevRotation:VectorToObjectSpace(upVector))
+		local spinAxis = delta:VectorToObjectSpace(prevRotation:VectorToObjectSpace(upCFrame.YVector))
 
 		local _swing, twist = swingTwistDecomposition(delta, spinAxis)
 		local deltaAxis, _deltaTheta = delta:ToAxisAngle()
@@ -129,7 +126,7 @@ return function(PlayerModule)
 	local cameraInput = require(PlayerModule.CameraModule.CameraInput) :: any
 
 	function cameraObject:GetUpVector(): Vector3
-		return upVector
+		return upCFrame.YVector
 	end
 
 	function cameraObject:GetUpCFrame(): CFrame
@@ -138,7 +135,6 @@ return function(PlayerModule)
 
 	function cameraObject:SetUpCFrame(cframe: CFrame)
 		upCFrame = cframe
-		upVector = cframe.YVector
 	end
 
 	function cameraObject:GetTargetUpVector(): Vector3
