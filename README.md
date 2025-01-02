@@ -10,7 +10,7 @@ CameraModule:GetUpVector(): Vector3
 -- returns what the camera currently considers to be the up cframe at any given moment
 CameraModule:GetUpCFrame(): CFrame
 
--- sets the up cframe
+-- sets the up cframe and target up vector
 CameraModule:SetUpCFrame(upCFrame: CFrame)
 
 -- by default this is Vector3.new(0, 1, 0)
