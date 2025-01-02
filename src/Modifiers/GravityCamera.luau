@@ -135,6 +135,7 @@ return function(PlayerModule)
 
 	function cameraObject:SetUpCFrame(cframe: CFrame)
 		upCFrame = cframe
+		targetUpVector = cframe.YVector
 	end
 
 	function cameraObject:GetTargetUpVector(): Vector3
