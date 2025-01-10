@@ -1,74 +1,16 @@
 --!strict
 
-local transitionRate: number = 0.15
-local upCFrame: CFrame = CFrame.identity
-local targetUpVector: Vector3 = upCFrame.YVector
+local GravityCamera = require(script.GravityCamera.Value) :: any
 
-local twistCFrame: CFrame = CFrame.identity
-local spinPart: BasePart = workspace.Terrain
-local prevSpinPart: BasePart = spinPart
-local prevSpinCFrame: CFrame = spinPart.CFrame
-
---
-
-local function fromToRotation(fromUnit: Vector3, toUnit: Vector3, backupAxis: Vector3)
-	local dot, cross = fromUnit:Dot(toUnit), fromUnit:Cross(toUnit)
-	if dot < -0.99999 then
-		return CFrame.fromAxisAngle(backupAxis, math.pi)
-	end
-	return CFrame.new(0, 0, 0, cross.X, cross.Y, cross.Z, 1 + dot)
-end
-
-local function swingTwistDecomposition(inputCF: CFrame, relativeUnitAxis: Vector3)
-	local axis, theta = inputCF:ToAxisAngle()
-	local w, v = math.cos(theta / 2), math.sin(theta / 2) * axis
-
-	local proj = v:Dot(relativeUnitAxis) * relativeUnitAxis
-	local twist = CFrame.new(0, 0, 0, proj.X, proj.Y, proj.Z, w)
-
-	local swing = inputCF * twist:Inverse()
-
-	return swing, twist
-end
-
-local function calculateUpStep(_dt: number)
-	local axis = workspace.CurrentCamera.CFrame.RightVector
-
-	local sphericalArc = fromToRotation(upCFrame.YVector, targetUpVector, axis)
-	local transitionCF = CFrame.identity:Lerp(sphericalArc, transitionRate)
-
-	upCFrame = transitionCF * upCFrame
-end
-
-local function calculateSpinStep(_dt: number, inVehicle: boolean)
-	if inVehicle then
-		twistCFrame = CFrame.identity
-	elseif spinPart == prevSpinPart then
-		local rotation = spinPart.CFrame - spinPart.CFrame.Position
-		local prevRotation = prevSpinCFrame - prevSpinCFrame.Position
-
-		local delta = prevRotation:ToObjectSpace(rotation)
-		local spinAxis = delta:VectorToObjectSpace(prevRotation:VectorToObjectSpace(upCFrame.YVector))
-
-		local _swing, twist = swingTwistDecomposition(delta, spinAxis)
-		local deltaAxis, _deltaTheta = delta:ToAxisAngle()
-		local _twistAxis, twistTheta = twist:ToAxisAngle()
-
-		local theta = math.sign(deltaAxis:Dot(spinAxis)) * twistTheta
-		twistCFrame = CFrame.fromEulerAnglesYXZ(0, theta, 0)
-	end
-
-	prevSpinPart = spinPart
-	prevSpinCFrame = spinPart.CFrame
-end
-
---
+local gravityCamera = GravityCamera.new()
 
 return function(PlayerModule)
 	------------
 	local cameraUtils = require(PlayerModule.CameraModule.CameraUtils) :: any
 
 	function cameraUtils.getAngleBetweenXZVectors(v1: Vector3, v2: Vector3): number
+		local upCFrame = gravityCamera:GetUpCFrame()
+
 		v1 = upCFrame:VectorToObjectSpace(v1)
 		v2 = upCFrame:VectorToObjectSpace(v2)
 
@@ -99,7 +41,7 @@ return function(PlayerModule)
 
 	function baseCamera:CalculateNewLookCFrameFromArg(suppliedLookVector: Vector3?, rotateInput: Vector2): CFrame
 		local currLookVector: Vector3 = suppliedLookVector or self:GetCameraLookVector()
-		currLookVector = upCFrame:VectorToObjectSpace(currLookVector)
+		currLookVector = gravityCamera:GetUpCFrame():VectorToObjectSpace(currLookVector)
 
 		local currPitchAngle = math.asin(currLookVector.Y)
 		local yTheta = math.clamp(rotateInput.Y, -max_y + currPitchAngle, -min_y + currPitchAngle)
@@ -117,7 +59,7 @@ return function(PlayerModule)
 	local setTransform = vehicleCameraCore.setTransform
 
 	function vehicleCameraCore:setTransform(transform: CFrame)
-		transform = upCFrame:ToObjectSpace(transform.Rotation) + transform.Position
+		transform = gravityCamera:GetUpCFrame():ToObjectSpace(transform.Rotation) + transform.Position
 		return setTransform(self, transform)
 	end
 
@@ -126,40 +68,39 @@ return function(PlayerModule)
 	local cameraInput = require(PlayerModule.CameraModule.CameraInput) :: any
 
 	function cameraObject:GetUpVector(): Vector3
-		return upCFrame.YVector
+		return gravityCamera:GetUpVector()
 	end
 
 	function cameraObject:GetUpCFrame(): CFrame
-		return upCFrame
+		return gravityCamera:GetUpCFrame()
 	end
 
 	function cameraObject:SetUpCFrame(cframe: CFrame)
-		upCFrame = cframe
-		targetUpVector = cframe.YVector
+		gravityCamera:SetUpCFrame(cframe)
 	end
 
 	function cameraObject:GetTargetUpVector(): Vector3
-		return targetUpVector
+		return gravityCamera:GetTargetUpVector()
 	end
 
 	function cameraObject:SetTargetUpVector(target: Vector3)
-		targetUpVector = target
+		gravityCamera:SetTargetUpVector(target)
 	end
 
 	function cameraObject:GetSpinPart(): BasePart
-		return spinPart
+		return gravityCamera:GetSpinPart()
 	end
 
 	function cameraObject:SetSpinPart(part: BasePart)
-		spinPart = part
+		gravityCamera:SetSpinPart(part)
 	end
 
 	function cameraObject:SetTransitionRate(rate: number)
-		transitionRate = rate
+		gravityCamera:SetTransitionRate(rate)
 	end
 
 	function cameraObject:GetTransitionRate(): number
-		return transitionRate
+		return gravityCamera:GetTransitionRate()
 	end
 
 	function cameraObject:Update(dt: number)
@@ -171,11 +112,10 @@ return function(PlayerModule)
 					and self.activeCameraController:GetMouseLockOffset()
 				or Vector3.new(0, 0, 0)
 
-			calculateUpStep(dt)
-			calculateSpinStep(dt, self:ShouldUseVehicleCamera())
+			gravityCamera:Step(dt, self:ShouldUseVehicleCamera())
 
 			local fixedCameraFocus = CFrame.new(newCameraFocus.Position) -- fixes an issue with vehicle cameras
-			local camRotation = upCFrame * twistCFrame * fixedCameraFocus:ToObjectSpace(newCameraCFrame)
+			local camRotation = gravityCamera:GetCFrame() * fixedCameraFocus:ToObjectSpace(newCameraCFrame)
 			local adjustedLockOffset = -newCameraCFrame:VectorToWorldSpace(lockOffset)
 				+ camRotation:VectorToWorldSpace(lockOffset)
 
